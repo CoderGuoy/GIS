@@ -40,6 +40,7 @@
                         style="@style/Home_Text"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
+                        android:background="?android:attr/selectableItemBackground"
                         android:text="点击编辑"
                         android:textColor="@color/color_f44a4a"/>
 
@@ -48,6 +49,9 @@
                         style="@style/Home_Text_Content"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
+                        android:background="@null"
+                        android:hint="例如:218.92.211.30:10003"
+                        android:singleLine="true"
                         android:visibility="gone"/>
 
                 </LinearLayout>
@@ -69,6 +73,7 @@
                             style="@style/Home_Text"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
+                            android:background="?android:attr/selectableItemBackground"
                             android:text="连接测试"/>
 
                         <TextView
@@ -162,6 +167,7 @@
                         style="@style/Home_Text"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
+                        android:layout_margin="5dp"
                         android:layout_weight="1"
                         android:background="@color/color_f44a4a"
                         android:gravity="center"
@@ -173,6 +179,7 @@
                         style="@style/Home_Text"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
+                        android:layout_margin="5dp"
                         android:layout_weight="1"
                         android:background="@color/color_888"
                         android:gravity="center"

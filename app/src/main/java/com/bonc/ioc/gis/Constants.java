@@ -12,8 +12,6 @@ import java.io.File;
  */
 public class Constants {
     //================= URL =====================
-    //盐城测试服务器 管理端
-    public static final String GL_URL = "http://218.92.211.30:10003/bonc_ycioc_lmp/";
     //盐城测试服务器 服务端
     public static final String BASE_URL = "http://218.92.211.30:10003/bonc_ycioc_lsp/";
 

@@ -18,11 +18,15 @@ import com.amap.api.maps.AMapOptions;
 import com.amap.api.maps.LocationSource;
 import com.amap.api.maps.UiSettings;
 import com.bonc.ioc.gis.databinding.ActivityMainBinding;
+import com.bonc.ioc.gis.net.ApiHelper;
+import com.bonc.ioc.gis.net.PositionBean;
 import com.bonc.ioc.gis.utils.MacUtils;
+import com.bonc.ioc.gis.utils.ToastUtil;
 import com.tbruyelle.rxpermissions.RxPermissions;
 
 import java.util.Date;
 
+import rx.Subscriber;
 import rx.functions.Action1;
 
 public class MainActivity extends AppCompatActivity implements LocationSource, AMapLocationListener, View.OnClickListener {
@@ -131,11 +135,11 @@ public class MainActivity extends AppCompatActivity implements LocationSource, A
     public void onLocationChanged(AMapLocation amapLocation) {
         if (mListener != null && amapLocation != null) {
             if (amapLocation != null && amapLocation.getErrorCode() == 0) {
+                mListener.onLocationChanged(amapLocation);// 显示系统小蓝点
                 //当前位置的经度
                 latitude = amapLocation.getLatitude();
                 //当前位置的纬度
                 longitude = amapLocation.getLongitude();
-                mListener.onLocationChanged(amapLocation);// 显示系统小蓝点
                 bindingView.textLatitude.setText(latitude + "");
                 bindingView.textLontitude.setText(longitude + "");
                 //获取定位时间
@@ -202,13 +206,59 @@ public class MainActivity extends AppCompatActivity implements LocationSource, A
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.text_ip://编辑
+                bindingView.textIp.setVisibility(View.GONE);
+                bindingView.edittextIp.setVisibility(View.VISIBLE);
                 break;
             case R.id.text_test://连接测试
+                bindingView.textIp.setText(bindingView.edittextIp.getText());
+                bindingView.textIp.setVisibility(View.VISIBLE);
+                bindingView.edittextIp.setVisibility(View.GONE);
+                if (bindingView.textIp.getText().length() <= 0) {
+                    ToastUtil.show("请输入服务器地址");
+                } else {
+//                getNetData();
+                }
                 break;
             case R.id.btn_start://开始
+                if (bindingView.textSuccess.getText().equals("已连接")) {
+                    ToastUtil.show("开始");
+                }
+                if (bindingView.textSuccess.getText().equals("未连接")) {
+                    ToastUtil.show("服务器未连接，无法开始");
+                }
                 break;
             case R.id.btn_end://结束
                 break;
         }
+    }
+
+    private void getNetData() {
+        ApiHelper.getInstance("http://" + bindingView.edittextIp.getText() + "/").getPosition(
+                "1", longitude + "", latitude + "", "", MacUtils.getMac())
+                .subscribe(new Subscriber<PositionBean>() {
+                    @Override
+                    public void onNext(PositionBean bean) {
+                        if (bean.getCode().equals("1")) {//连接成功
+                            bindingView.textSuccess.setText("已连接");
+                            bindingView.textSuccess.setTextColor(getResources().getColor(R.color.green));
+                        } else {
+                            bindingView.textSuccess.setText("连接失败");
+                            bindingView.textSuccess.setTextColor(getResources().getColor(R.color.color_f44a4a));
+                        }
+                    }
+
+                    @Override
+                    public void onCompleted() {
+
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+                        ToastUtil.show("服务器连接失败");
+                        bindingView.textSuccess.setText("未连接");
+                        bindingView.textSuccess.setTextColor(getResources().getColor(R.color.color_f44a4a));
+                    }
+
+                });
     }
 }
