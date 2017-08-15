@@ -2,6 +2,7 @@ package com.bonc.ioc.gis.net;
 
 
 import com.bonc.ioc.gis.Constants;
+import com.bonc.ioc.gis.utils.RxUtil;
 import com.bonc.ioc.gis.utils.SystemUtil;
 
 import java.io.File;
@@ -18,6 +19,7 @@ import okhttp3.logging.HttpLoggingInterceptor;
 import retrofit2.Retrofit;
 import retrofit2.adapter.rxjava.RxJavaCallAdapterFactory;
 import retrofit2.converter.gson.GsonConverterFactory;
+import rx.Observable;
 import rx.android.BuildConfig;
 
 /**
@@ -97,4 +99,8 @@ public class ApiHelper {
         return INSTANCE;
     }
 
+    public Observable<PositionBean> getPosition(String state, String lon, String lat, String saveTime, String posCode) {
+        return apiservices.setPosition(state, lon, lat, saveTime, posCode)
+                .compose(RxUtil.<PositionBean>rxSchedulerHelper());
+    }
 }

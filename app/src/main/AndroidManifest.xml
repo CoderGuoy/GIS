@@ -3,25 +3,25 @@
           package="com.bonc.ioc.gis">
 
     <!-- 允许程序打开网络 -->
-    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.INTERNET"/>
     <!-- 获取当前WiFi接入的状态以及WLAN热点的信息 -->
-    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
-    <uses-permission android:name="android.permission.CHANGE_WIFI_STATE" />
+    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE"/>
+    <uses-permission android:name="android.permission.CHANGE_WIFI_STATE"/>
     <!-- 获取网络信息状态，如当前的网络连接是否有效 -->
-    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
-    <uses-permission android:name="android.permission.READ_LOGS" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
+    <uses-permission android:name="android.permission.READ_LOGS"/>
     <!-- 允许程序设置内置sd卡的写权限 -->
-    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
-    <uses-permission android:name="android.permission.DOWNLOAD_WITHOUT_NOTIFICATION" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
+    <uses-permission android:name="android.permission.DOWNLOAD_WITHOUT_NOTIFICATION"/>
     <!-- 允许程序读写手机状态和身份 -->
-    <uses-permission android:name="android.permission.READ_PHONE_STATE" />
+    <uses-permission android:name="android.permission.READ_PHONE_STATE"/>
     <!-- 允许程序访问CellID或WiFi热点来获取粗略的位置 -->
-    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
-    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
-    <uses-permission android:name="android.permission.GET_TASKS" />
-    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
+    <uses-permission android:name="android.permission.GET_TASKS"/>
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
     <!-- 打电话 -->
-    <uses-permission android:name="android.permission.CALL_PHONE" />
+    <uses-permission android:name="android.permission.CALL_PHONE"/>
 
     <application
         android:name=".App"
@@ -39,8 +39,13 @@
             </intent-filter>
         </activity>
 
+        <!--高德key-->
+        <meta-data
+            android:name="com.amap.api.v2.apikey"
+            android:value="576f1e5a39ef686ae22efbd7887b2318"/>
+
         <!-- 定位需要的服务 使用2.0的定位需要加上这个 -->
-        <service android:name="com.amap.api.location.APSService" />
+        <service android:name="com.amap.api.location.APSService"/>
     </application>
 
 </manifest>
