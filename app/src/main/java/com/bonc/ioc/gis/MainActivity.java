@@ -7,6 +7,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+import android.view.View;
 
 import com.amap.api.location.AMapLocation;
 import com.amap.api.location.AMapLocationClient;
@@ -24,7 +25,7 @@ import java.util.Date;
 
 import rx.functions.Action1;
 
-public class MainActivity extends AppCompatActivity implements LocationSource, AMapLocationListener {
+public class MainActivity extends AppCompatActivity implements LocationSource, AMapLocationListener, View.OnClickListener {
 
     private RxPermissions rxPermissions;
     private OnLocationChangedListener mListener;
@@ -43,6 +44,7 @@ public class MainActivity extends AppCompatActivity implements LocationSource, A
         //在activity执行onCreate时执行mMapView.onCreate(savedInstanceState)，创建地图
         bindingView.mapview.onCreate(savedInstanceState);
         initData();
+        initListener();
     }
 
     private void initData() {
@@ -54,6 +56,13 @@ public class MainActivity extends AppCompatActivity implements LocationSource, A
         mUiSettings = aMap.getUiSettings();
         mUiSettings.setZoomPosition(AMapOptions.ZOOM_POSITION_RIGHT_CENTER);
         rxPermissions = new RxPermissions(this);
+    }
+
+    private void initListener() {
+        bindingView.btnStart.setOnClickListener(this);
+        bindingView.btnEnd.setOnClickListener(this);
+        bindingView.textIp.setOnClickListener(this);
+        bindingView.textTest.setOnClickListener(this);
     }
 
     @Override
@@ -189,4 +198,17 @@ public class MainActivity extends AppCompatActivity implements LocationSource, A
         bindingView.mapview.onSaveInstanceState(outState);
     }
 
+    @Override
+    public void onClick(View v) {
+        switch (v.getId()) {
+            case R.id.text_ip://编辑
+                break;
+            case R.id.text_test://连接测试
+                break;
+            case R.id.btn_start://开始
+                break;
+            case R.id.btn_end://结束
+                break;
+        }
+    }
 }

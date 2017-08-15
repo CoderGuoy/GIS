@@ -28,9 +28,12 @@ dependencies {
     androidTestCompile('com.android.support.test.espresso:espresso-core:2.2.2', {
         exclude group: 'com.android.support', module: 'support-annotations'
     })
+    compile files('libs/Amap_2DMap_V3.0.0_20161227.jar')
+    compile files('libs/AMap_Location_V3.2.0_20161205.jar')
+    compile files('libs/AMap_Search_V3.6.1_20161222.jar')
+    compile files('libs/Android_Map3D_SDK_V4.1.3_20161208.jar')
     compile 'com.android.support:appcompat-v7:25.3.1'
     compile 'com.android.support.constraint:constraint-layout:1.0.2'
-    testCompile 'junit:junit:4.12'
     compile 'com.android.support:support-v4:25.3.1'
     compile 'com.android.support:design:25.3.1'
     compile 'io.reactivex:rxjava:1.1.6'
@@ -44,8 +47,5 @@ dependencies {
     compile 'com.squareup.okhttp3:logging-interceptor:3.0.1'
     compile 'com.android.support:multidex:1.0.0'
     compile 'com.tbruyelle.rxpermissions:rxpermissions:0.9.3@aar'
-    compile files('libs/Amap_2DMap_V3.0.0_20161227.jar')
-    compile files('libs/AMap_Location_V3.2.0_20161205.jar')
-    compile files('libs/AMap_Search_V3.6.1_20161222.jar')
-    compile files('libs/Android_Map3D_SDK_V4.1.3_20161208.jar')
+    testCompile 'junit:junit:4.12'
 }

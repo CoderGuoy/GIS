@@ -3,175 +3,184 @@
         xmlns:app="http://schemas.android.com/apk/res-auto"
         xmlns:tools="http://schemas.android.com/tools">
 
-    <android.support.v4.widget.NestedScrollView
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        android:orientation="vertical">
 
-        <LinearLayout
+        <com.amap.api.maps.TextureMapView
+            android:id="@+id/mapview"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:orientation="vertical"
-            tools:context="com.bonc.ioc.gis.MainActivity">
+            android:layout_height="300dp"/>
 
-            <com.amap.api.maps.MapView
-                android:id="@+id/mapview"
-                android:layout_width="match_parent"
-                android:layout_height="300dp"/>
+        <android.support.v4.widget.NestedScrollView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
 
-            <!--Mac地址-->
             <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal">
+                android:layout_height="match_parent"
+                android:orientation="vertical"
+                tools:context="com.bonc.ioc.gis.MainActivity">
 
-                <TextView
-                    style="@style/Home_Text"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="服务器地址:"/>
-
-                <TextView
-                    android:id="@+id/text_ip"
-                    style="@style/Home_Text"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="点击编辑"
-                    android:textColor="@color/color_f44a4a"/>
-
-                <EditText
-                    android:id="@+id/edittext_ip"
-                    style="@style/Home_Text_Content"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:visibility="gone"/>
-
-            </LinearLayout>
-
-            <RelativeLayout
-                android:id="@+id/layout_edit"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content">
-
+                <!--Mac地址-->
                 <LinearLayout
-                    android:layout_width="wrap_content"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_alignParentRight="true"
-                    android:layout_centerVertical="true"
                     android:orientation="horizontal">
 
                     <TextView
-                        android:id="@+id/text_test"
                         style="@style/Home_Text"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="连接测试"/>
+                        android:text="服务器地址:"/>
 
                     <TextView
-                        android:id="@+id/text_success"
+                        android:id="@+id/text_ip"
+                        style="@style/Home_Text"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="点击编辑"
+                        android:textColor="@color/color_f44a4a"/>
+
+                    <EditText
+                        android:id="@+id/edittext_ip"
                         style="@style/Home_Text_Content"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:visibility="gone"/>
+
+                </LinearLayout>
+
+                <RelativeLayout
+                    android:id="@+id/layout_edit"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
+
+                    <LinearLayout
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="未连接"/>
+                        android:layout_alignParentRight="true"
+                        android:layout_centerVertical="true"
+                        android:orientation="horizontal">
+
+                        <TextView
+                            android:id="@+id/text_test"
+                            style="@style/Home_Text"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="连接测试"/>
+
+                        <TextView
+                            android:id="@+id/text_success"
+                            style="@style/Home_Text_Content"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="未连接"/>
+                    </LinearLayout>
+                </RelativeLayout>
+                <!--Mac地址-->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        style="@style/Home_Text"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Mac地址:"/>
+
+                    <TextView
+                        android:id="@+id/text_mac"
+                        style="@style/Home_Text_Content"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"/>
                 </LinearLayout>
-            </RelativeLayout>
-            <!--Mac地址-->
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal">
-
-                <TextView
-                    style="@style/Home_Text"
-                    android:layout_width="wrap_content"
+                <!--时间-->
+                <LinearLayout
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="Mac地址:"/>
+                    android:orientation="horizontal">
 
-                <TextView
-                    android:id="@+id/text_mac"
-                    style="@style/Home_Text_Content"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"/>
+                    <TextView
+                        style="@style/Home_Text"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="当前时间:"/>
+
+                    <TextView
+                        android:id="@+id/text_time"
+                        style="@style/Home_Text_Content"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"/>
+                </LinearLayout>
+                <!--当前经度-->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        style="@style/Home_Text"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="当前经度:"/>
+
+                    <TextView
+                        android:id="@+id/text_latitude"
+                        style="@style/Home_Text_Content"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"/>
+                </LinearLayout>
+                <!--当前纬度-->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        style="@style/Home_Text"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="当前纬度:"/>
+
+                    <TextView
+                        android:id="@+id/text_lontitude"
+                        style="@style/Home_Text_Content"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"/>
+                </LinearLayout>
+                <!--开始-->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal">
+
+                    <Button
+                        android:id="@+id/btn_start"
+                        style="@style/Home_Text"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:background="@color/color_f44a4a"
+                        android:gravity="center"
+                        android:text="开始"
+                        android:textColor="@color/colorWhite"/>
+
+                    <Button
+                        android:id="@+id/btn_end"
+                        style="@style/Home_Text"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:background="@color/color_888"
+                        android:gravity="center"
+                        android:text="结束"
+                        android:textColor="@color/colorWhite"/>
+                </LinearLayout>
             </LinearLayout>
-            <!--时间-->
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal">
+        </android.support.v4.widget.NestedScrollView>
 
-                <TextView
-                    style="@style/Home_Text"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="当前时间:"/>
-
-                <TextView
-                    android:id="@+id/text_time"
-                    style="@style/Home_Text_Content"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"/>
-            </LinearLayout>
-            <!--当前经度-->
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal">
-
-                <TextView
-                    style="@style/Home_Text"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="当前经度:"/>
-
-                <TextView
-                    android:id="@+id/text_latitude"
-                    style="@style/Home_Text_Content"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"/>
-            </LinearLayout>
-            <!--当前纬度-->
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal">
-
-                <TextView
-                    style="@style/Home_Text"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="当前纬度:"/>
-
-                <TextView
-                    android:id="@+id/text_lontitude"
-                    style="@style/Home_Text_Content"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"/>
-            </LinearLayout>
-            <!--开始-->
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal">
-
-                <Button
-                    style="@style/Home_Text"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:background="@color/color_f44a4a"
-                    android:gravity="center"
-                    android:text="开始"
-                    android:textColor="@color/colorWhite"/>
-
-                <Button
-                    style="@style/Home_Text"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:background="@color/color_888"
-                    android:gravity="center"
-                    android:text="结束"
-                    android:textColor="@color/colorWhite"/>
-            </LinearLayout>
-        </LinearLayout>
-    </android.support.v4.widget.NestedScrollView>
+    </LinearLayout>
 </layout>
