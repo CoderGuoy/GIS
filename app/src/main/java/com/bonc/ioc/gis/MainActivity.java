@@ -2,10 +2,9 @@ package com.bonc.ioc.gis;
 
 import android.Manifest;
 import android.databinding.DataBindingUtil;
-import android.icu.text.SimpleDateFormat;
-import android.os.Build;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.text.format.Time;
 import android.util.Log;
 import android.view.View;
 
@@ -23,8 +22,6 @@ import com.bonc.ioc.gis.net.PositionBean;
 import com.bonc.ioc.gis.utils.MacUtils;
 import com.bonc.ioc.gis.utils.ToastUtil;
 import com.tbruyelle.rxpermissions.RxPermissions;
-
-import java.util.Date;
 
 import rx.Subscriber;
 import rx.functions.Action1;
@@ -143,13 +140,7 @@ public class MainActivity extends AppCompatActivity implements LocationSource, A
                 bindingView.textLatitude.setText(latitude + "");
                 bindingView.textLontitude.setText(longitude + "");
                 //获取定位时间
-                SimpleDateFormat df = null;
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-                    df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-                    Date date = new Date(amapLocation.getTime());
-                    df.format(date);
-                    bindingView.textTime.setText(df + "");
-                }
+                bindingView.textTime.setText(getSystemTime());
             } else {
                 Log.e("AmapError", "location Error, ErrCode:"
                         + amapLocation.getErrorCode() + ", errInfo:"
@@ -216,7 +207,7 @@ public class MainActivity extends AppCompatActivity implements LocationSource, A
                 if (bindingView.textIp.getText().length() <= 0) {
                     ToastUtil.show("请输入服务器地址");
                 } else {
-//                getNetData();
+                    getNetData();
                 }
                 break;
             case R.id.btn_start://开始
@@ -233,11 +224,15 @@ public class MainActivity extends AppCompatActivity implements LocationSource, A
     }
 
     private void getNetData() {
-        ApiHelper.getInstance("http://" + bindingView.edittextIp.getText() + "/").getPosition(
-                "1", longitude + "", latitude + "", "", MacUtils.getMac())
+        Log.i("gis_ip", "http://" + bindingView.textIp.getText() + ":8080/");
+        Log.i("gis_time", getSystemTime());
+        ApiHelper.getInstance("http://" + bindingView.textIp.getText() + ":8080/").getPosition(
+                "1", longitude + "", latitude + "", getSystemTime(), MacUtils.getMac())
                 .subscribe(new Subscriber<PositionBean>() {
                     @Override
                     public void onNext(PositionBean bean) {
+                        Log.i("gis", bean.getDes());
+                        Log.i("gis", bean.getCode());
                         if (bean.getCode().equals("1")) {//连接成功
                             bindingView.textSuccess.setText("已连接");
                             bindingView.textSuccess.setTextColor(getResources().getColor(R.color.green));
@@ -254,11 +249,24 @@ public class MainActivity extends AppCompatActivity implements LocationSource, A
 
                     @Override
                     public void onError(Throwable e) {
-                        ToastUtil.show("服务器连接失败");
+                        Log.i("gis_onError", e.toString());
                         bindingView.textSuccess.setText("未连接");
                         bindingView.textSuccess.setTextColor(getResources().getColor(R.color.color_f44a4a));
                     }
 
                 });
+    }
+
+    private String getSystemTime() {
+        Time time = new Time("GMT+8");
+        time.setToNow();
+        int year = time.year;
+        int month = time.month;
+        int day = time.monthDay;
+        int minute = time.minute;
+        int hour = time.hour;
+        int sec = time.second;
+        String systemTime = year + "-" + month + "-" + day + " " + hour + ":" + minute + ":" + sec;
+        return systemTime;
     }
 }
