@@ -1,10 +1,10 @@
 package com.bonc.ioc.gis;
 
 import android.Manifest;
+import android.app.ProgressDialog;
 import android.databinding.DataBindingUtil;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
-import android.text.format.Time;
 import android.util.Log;
 import android.view.View;
 
@@ -23,6 +23,9 @@ import com.bonc.ioc.gis.utils.MacUtils;
 import com.bonc.ioc.gis.utils.ToastUtil;
 import com.tbruyelle.rxpermissions.RxPermissions;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
 import rx.Subscriber;
 import rx.functions.Action1;
 
@@ -37,6 +40,12 @@ public class MainActivity extends AppCompatActivity implements LocationSource, A
     private UiSettings mUiSettings;
     private Double latitude;
     private Double longitude;
+    private String state1 = "1";//开启巡航/定位
+    private String state2 = "2";//停止巡航/定位
+    private String state3 = "3";//正常行驶/巡航
+    private String state4 = "4";//上报异常
+    private String state = "0";//当前状态
+    private ProgressDialog mProgressDialog;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -57,6 +66,8 @@ public class MainActivity extends AppCompatActivity implements LocationSource, A
         mUiSettings = aMap.getUiSettings();
         mUiSettings.setZoomPosition(AMapOptions.ZOOM_POSITION_RIGHT_CENTER);
         rxPermissions = new RxPermissions(this);
+        mProgressDialog = new ProgressDialog(MainActivity.this);
+        mProgressDialog.setMessage("别着急，骚年，正在连接...");
     }
 
     private void initListener() {
@@ -99,7 +110,7 @@ public class MainActivity extends AppCompatActivity implements LocationSource, A
         // 设置为true表示显示定位层并可触发定位，false表示隐藏定位层并不可触发定位，默认是false
         aMap.setMyLocationEnabled(true);
         // 设置定位的类型为定位模式，有定位、跟随或地图根据面向方向旋转几种
-        aMap.setMyLocationType(AMap.LOCATION_TYPE_LOCATE);
+        aMap.setMyLocationType(AMap.LOCATION_TYPE_MAP_FOLLOW);
 //        aMap.moveCamera(CameraUpdateFactory.zoomTo(18));//设置放大级别
 //        aMap.moveCamera(CameraUpdateFactory.changeTilt(45));//设置俯仰角0°~45°（垂直与地图时为0）
     }
@@ -207,28 +218,40 @@ public class MainActivity extends AppCompatActivity implements LocationSource, A
                 if (bindingView.textIp.getText().length() <= 0) {
                     ToastUtil.show("请输入服务器地址");
                 } else {
-                    getNetData();
+                    state = state1;
+                    getNetData(state);
                 }
                 break;
             case R.id.btn_start://开始
                 if (bindingView.textSuccess.getText().equals("已连接")) {
-                    ToastUtil.show("开始");
+                    state = state3;
+                    getNetData(state);
+                    bindingView.btnStart.setText("正在运行中...");
                 }
                 if (bindingView.textSuccess.getText().equals("未连接")) {
                     ToastUtil.show("服务器未连接，无法开始");
                 }
                 break;
             case R.id.btn_end://结束
+                state = state2;
+                getNetData(state);
+                bindingView.btnStart.setText("开始");
                 break;
         }
     }
 
-    private void getNetData() {
-        Log.i("gis_ip", "http://" + bindingView.textIp.getText() + ":8080/");
+    private void getNetData(final String state) {
+        Log.i("gis_ip", "http://" + bindingView.textIp.getText() + "/");
         Log.i("gis_time", getSystemTime());
-        ApiHelper.getInstance("http://" + bindingView.textIp.getText() + ":8080/").getPosition(
-                "1", longitude + "", latitude + "", getSystemTime(), MacUtils.getMac())
+        ApiHelper.getInstance("http://" + bindingView.textIp.getText() + "/").getPosition(
+                state, longitude + "", latitude + "", getSystemTime(), MacUtils.getMac())
                 .subscribe(new Subscriber<PositionBean>() {
+                    @Override
+                    public void onStart() {
+                        super.onStart();
+                        mProgressDialog.show();
+                    }
+
                     @Override
                     public void onNext(PositionBean bean) {
                         Log.i("gis", bean.getDes());
@@ -244,29 +267,36 @@ public class MainActivity extends AppCompatActivity implements LocationSource, A
 
                     @Override
                     public void onCompleted() {
-
+                        mProgressDialog.dismiss();
+                        mProgressDialog.cancel();
                     }
 
                     @Override
                     public void onError(Throwable e) {
                         Log.i("gis_onError", e.toString());
-                        bindingView.textSuccess.setText("未连接");
-                        bindingView.textSuccess.setTextColor(getResources().getColor(R.color.color_f44a4a));
+                        if (state.equals(state1)) {//连接测试阶段异常
+                            bindingView.textSuccess.setText("未连接");
+                            bindingView.textSuccess.setTextColor(getResources().getColor(R.color.color_f44a4a));
+                        }
+                        if (state.equals(state3)) {//运行中出现异常
+                            bindingView.textSuccess.setText("已断开");
+                            bindingView.textSuccess.setTextColor(getResources().getColor(R.color.color_f44a4a));
+                            bindingView.btnStart.setText("开始");
+                        }
                     }
-
                 });
     }
 
+    /**
+     * 获取系统当前时间
+     *
+     * @return
+     */
     private String getSystemTime() {
-        Time time = new Time("GMT+8");
-        time.setToNow();
-        int year = time.year;
-        int month = time.month;
-        int day = time.monthDay;
-        int minute = time.minute;
-        int hour = time.hour;
-        int sec = time.second;
-        String systemTime = year + "-" + month + "-" + day + " " + hour + ":" + minute + ":" + sec;
-        return systemTime;
+        SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        Date curDate = new Date(System.currentTimeMillis());
+        String str = format.format(curDate);
+        return str;
     }
+
 }
