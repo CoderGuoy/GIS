@@ -20,6 +20,7 @@ import com.bonc.ioc.gis.databinding.ActivityMainBinding;
 import com.bonc.ioc.gis.net.ApiHelper;
 import com.bonc.ioc.gis.net.PositionBean;
 import com.bonc.ioc.gis.utils.MacUtils;
+import com.bonc.ioc.gis.utils.NetUtils;
 import com.bonc.ioc.gis.utils.ToastUtil;
 import com.tbruyelle.rxpermissions.RxPermissions;
 
@@ -152,6 +153,13 @@ public class MainActivity extends AppCompatActivity implements LocationSource, A
                 bindingView.textLontitude.setText(longitude + "");
                 //获取定位时间
                 bindingView.textTime.setText(getSystemTime());
+                if (!NetUtils.isNetworkConnected(MainActivity.this)) {//没有网络
+                    ToastUtil.show("骚年，没有网络，无法工作！");
+                    bindingView.textSuccess.setText("已断开");
+                    bindingView.textSuccess.setTextColor(getResources().getColor(R.color.color_f44a4a));
+                    bindingView.btnStart.setText("开始");
+                    state = state2;
+                }
             } else {
                 Log.e("AmapError", "location Error, ErrCode:"
                         + amapLocation.getErrorCode() + ", errInfo:"
@@ -181,6 +189,7 @@ public class MainActivity extends AppCompatActivity implements LocationSource, A
         if (null != mlocationClient) {
             mlocationClient.onDestroy();
         }
+        mProgressDialog = null;
     }
 
     @Override
