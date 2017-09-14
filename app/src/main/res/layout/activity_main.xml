@@ -47,16 +47,80 @@
                         android:text="点击编辑"
                         android:textColor="@color/color_f44a4a"/>
 
-                    <EditText
-                        android:id="@+id/edittext_ip"
+                    <RelativeLayout
+                        android:id="@+id/layout_ip"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:visibility="gone">
+
+                        <EditText
+                            android:id="@+id/edittext_ip"
+                            style="@style/Home_Text_Content"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:background="@null"
+                            android:hint="例如:172.16.67.128:8080"
+                            android:singleLine="true"/>
+
+                        <Button
+                            android:id="@+id/btn_ip_ok"
+                            android:layout_width="wrap_content"
+                            android:layout_height="30dp"
+                            android:layout_alignParentRight="true"
+                            android:layout_centerVertical="true"
+                            android:layout_marginRight="5dp"
+                            android:background="@drawable/shape_btn_select"
+                            android:text="OK"
+                            android:textColor="@color/colorWhite"/>
+                    </RelativeLayout>
+
+                </LinearLayout>
+
+                <!--定位编码-->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        style="@style/Home_Text"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="定位编码:"/>
+
+                    <TextView
+                        android:id="@+id/text_code"
                         style="@style/Home_Text_Content"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:background="@null"
-                        android:hint="例如:172.16.67.128:8080"
-                        android:singleLine="true"
-                        android:visibility="gone"/>
+                        android:text="点击输入"/>
 
+                    <RelativeLayout
+                        android:id="@+id/layout_code"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:visibility="gone">
+
+                        <EditText
+                            android:id="@+id/edittext_code"
+                            style="@style/Home_Text_Content"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:background="@null"
+                            android:hint="输入什么看你心情"
+                            android:singleLine="true"/>
+
+                        <Button
+                            android:id="@+id/btn_code_ok"
+                            android:layout_width="wrap_content"
+                            android:layout_height="30dp"
+                            android:layout_alignParentRight="true"
+                            android:layout_centerVertical="true"
+                            android:layout_marginRight="5dp"
+                            android:background="@drawable/shape_btn_select"
+                            android:text="OK"
+                            android:textColor="@color/colorWhite"/>
+                    </RelativeLayout>
                 </LinearLayout>
 
                 <RelativeLayout
@@ -87,24 +151,6 @@
                             android:text="未连接"/>
                     </LinearLayout>
                 </RelativeLayout>
-                <!--Mac地址-->
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal">
-
-                    <TextView
-                        style="@style/Home_Text"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Mac地址:"/>
-
-                    <TextView
-                        android:id="@+id/text_mac"
-                        style="@style/Home_Text_Content"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"/>
-                </LinearLayout>
                 <!--时间-->
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -172,7 +218,7 @@
                         android:layout_height="wrap_content"
                         android:layout_margin="5dp"
                         android:layout_weight="1"
-                        android:background="@color/color_f44a4a"
+                        android:background="@drawable/shape_btn_select"
                         android:gravity="center"
                         android:text="开始"
                         android:textColor="@color/colorWhite"/>
@@ -184,7 +230,7 @@
                         android:layout_height="wrap_content"
                         android:layout_margin="5dp"
                         android:layout_weight="1"
-                        android:background="@color/color_888"
+                        android:background="@drawable/shape_btn_normal"
                         android:gravity="center"
                         android:text="结束"
                         android:textColor="@color/colorWhite"/>

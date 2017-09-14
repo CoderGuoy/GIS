@@ -12,11 +12,6 @@ import java.io.File;
  */
 public class Constants {
     //================= URL =====================
-    //盐城测试服务器 服务端
-    public static final String BASE_URL = "http://172.16.67.128:8080/";
-
-    //图片
-    public static final String PHOTO_URL = "views/lmp/index/images/pic/";
     //================= PATH ====================
 
     public static final String PATH_DATA = App.getInstance().getCacheDir().getAbsolutePath() + File.separator + "data";

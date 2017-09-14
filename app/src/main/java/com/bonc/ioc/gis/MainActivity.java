@@ -19,8 +19,8 @@ import com.amap.api.maps.UiSettings;
 import com.bonc.ioc.gis.databinding.ActivityMainBinding;
 import com.bonc.ioc.gis.net.ApiHelper;
 import com.bonc.ioc.gis.net.PositionBean;
-import com.bonc.ioc.gis.utils.MacUtils;
 import com.bonc.ioc.gis.utils.NetUtils;
+import com.bonc.ioc.gis.utils.SPUtils;
 import com.bonc.ioc.gis.utils.ToastUtil;
 import com.tbruyelle.rxpermissions.RxPermissions;
 
@@ -69,13 +69,18 @@ public class MainActivity extends AppCompatActivity implements LocationSource, A
         rxPermissions = new RxPermissions(this);
         mProgressDialog = new ProgressDialog(MainActivity.this);
         mProgressDialog.setMessage("别着急，骚年，正在连接...");
+        bindingView.textIp.setText(SPUtils.getString("ip", ""));
+        bindingView.textCode.setText(SPUtils.getString("code", ""));
     }
 
     private void initListener() {
         bindingView.btnStart.setOnClickListener(this);
         bindingView.btnEnd.setOnClickListener(this);
         bindingView.textIp.setOnClickListener(this);
+        bindingView.textCode.setOnClickListener(this);
         bindingView.textTest.setOnClickListener(this);
+        bindingView.btnIpOk.setOnClickListener(this);
+        bindingView.btnCodeOk.setOnClickListener(this);
     }
 
     @Override
@@ -83,8 +88,6 @@ public class MainActivity extends AppCompatActivity implements LocationSource, A
         super.onWindowFocusChanged(hasFocus);
         //获取权限
         initPermission();
-        //Mac地址
-        bindingView.textMac.setText(MacUtils.getMac());
     }
 
     private void initPermission() {
@@ -151,6 +154,7 @@ public class MainActivity extends AppCompatActivity implements LocationSource, A
                 longitude = amapLocation.getLongitude();
                 bindingView.textLatitude.setText(latitude + "");
                 bindingView.textLontitude.setText(longitude + "");
+                Log.i("gis", "lat" + latitude + ";" + "log" + longitude);
                 //获取定位时间
                 bindingView.textTime.setText(getSystemTime());
                 if (!NetUtils.isNetworkConnected(MainActivity.this)) {//没有网络
@@ -159,6 +163,9 @@ public class MainActivity extends AppCompatActivity implements LocationSource, A
                     bindingView.textSuccess.setTextColor(getResources().getColor(R.color.color_f44a4a));
                     bindingView.btnStart.setText("开始");
                     state = state2;
+                }
+                if (state.equals(state3)) {
+                    getNetData(state);
                 }
             } else {
                 Log.e("AmapError", "location Error, ErrCode:"
@@ -179,6 +186,160 @@ public class MainActivity extends AppCompatActivity implements LocationSource, A
             mlocationClient.onDestroy();
         }
         mlocationClient = null;
+    }
+
+    @Override
+    public void onClick(View v) {
+        switch (v.getId()) {
+            case R.id.text_ip://服务器IP
+                bindingView.textIp.setVisibility(View.GONE);
+                bindingView.layoutIp.setVisibility(View.VISIBLE);
+                break;
+            case R.id.text_code://定位编码
+                bindingView.textCode.setVisibility(View.GONE);
+                bindingView.layoutCode.setVisibility(View.VISIBLE);
+                break;
+            case R.id.btn_ip_ok://服务器IP确定
+                if (bindingView.edittextIp.getText().length() > 0) {
+                    bindingView.textIp.setVisibility(View.VISIBLE);
+                    bindingView.textIp.setText(bindingView.edittextIp.getText().toString());
+                    SPUtils.putString("ip", bindingView.edittextIp.getText().toString());
+                    bindingView.layoutIp.setVisibility(View.GONE);
+                } else {
+                    ToastUtil.show("请输入服务器IP");
+                }
+                break;
+            case R.id.btn_code_ok://定位编码确定
+                if (bindingView.edittextCode.getText().length() > 0) {
+                    bindingView.textCode.setVisibility(View.VISIBLE);
+                    bindingView.textCode.setText(bindingView.edittextCode.getText().toString());
+                    SPUtils.putString("code", bindingView.edittextCode.getText().toString());
+                    bindingView.layoutCode.setVisibility(View.GONE);
+                } else {
+                    ToastUtil.show("请输入定位编码");
+                }
+                break;
+            case R.id.text_test://连接测试
+                if (bindingView.textIp.getText() != null && bindingView.textCode.getText() != null) {
+                    state = state1;
+                    getNetTestData(state);
+                }
+                break;
+            case R.id.btn_start://开始
+                if (bindingView.textSuccess.getText().equals("已连接")) {
+                    state = state3;
+                }
+                if (bindingView.textSuccess.getText().equals("未连接")) {
+                    ToastUtil.show("服务器未连接，无法开始");
+                }
+                break;
+            case R.id.btn_end://结束
+                if (bindingView.textSuccess.getText().equals("已连接")) {
+                    state = state2;
+                    getNetTestData(state);
+                    bindingView.btnStart.setText("开始");
+                } else {
+                    ToastUtil.show("服务器未连接!");
+                }
+                break;
+        }
+    }
+
+    /**
+     * 连接测试
+     */
+    private void getNetTestData(final String state) {
+        ApiHelper.getInstance("http://" + bindingView.textIp.getText() + "/").getPosition(
+                state, longitude + "", latitude + "", getSystemTime(), bindingView.textCode.getText().toString())
+                .subscribe(new Subscriber<PositionBean>() {
+                    @Override
+                    public void onStart() {
+                        super.onStart();
+                        mProgressDialog.show();
+                    }
+
+                    @Override
+                    public void onNext(PositionBean bean) {
+                        if (bean.getCode().equals("1")) {//连接成功
+                            bindingView.textSuccess.setText("已连接");
+                            bindingView.textSuccess.setTextColor(getResources().getColor(R.color.green));
+                        } else {
+                            bindingView.textSuccess.setText("连接失败");
+                            bindingView.textSuccess.setTextColor(getResources().getColor(R.color.color_f44a4a));
+                        }
+                    }
+
+                    @Override
+                    public void onCompleted() {
+                        mProgressDialog.dismiss();
+                        mProgressDialog.cancel();
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+                        Log.i("gis_onError", e.toString());
+                        if (state.equals(state1)) {//连接测试阶段异常
+                            bindingView.textSuccess.setText("未连接");
+                            bindingView.textSuccess.setTextColor(getResources().getColor(R.color.color_f44a4a));
+                        }
+                        if (state.equals(state3)) {//运行中出现异常
+                            bindingView.textSuccess.setText("已断开");
+                            bindingView.textSuccess.setTextColor(getResources().getColor(R.color.color_f44a4a));
+                            bindingView.btnStart.setText("开始");
+                        }
+                    }
+                });
+    }
+
+    /**
+     * 上传数据
+     */
+    private void getNetData(final String state) {
+        ApiHelper.getInstance("http://" + bindingView.textIp.getText() + "/").getPosition(
+                state, longitude + "", latitude + "", getSystemTime(), bindingView.textCode.getText().toString())
+                .subscribe(new Subscriber<PositionBean>() {
+                    @Override
+                    public void onNext(PositionBean bean) {
+                        if (bean.getCode().equals("1")) {//连接成功
+                            bindingView.textSuccess.setText("已连接");
+                            bindingView.textSuccess.setTextColor(getResources().getColor(R.color.green));
+                        } else {
+                            bindingView.textSuccess.setText("连接失败");
+                            bindingView.textSuccess.setTextColor(getResources().getColor(R.color.color_f44a4a));
+                        }
+                    }
+
+                    @Override
+                    public void onCompleted() {
+                        bindingView.btnStart.setText("正在运行中...");
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+                        Log.i("gis_onError", e.toString());
+                        if (state.equals(state1)) {//连接测试阶段异常
+                            bindingView.textSuccess.setText("未连接");
+                            bindingView.textSuccess.setTextColor(getResources().getColor(R.color.color_f44a4a));
+                        }
+                        if (state.equals(state3)) {//运行中出现异常
+                            bindingView.textSuccess.setText("已断开");
+                            bindingView.textSuccess.setTextColor(getResources().getColor(R.color.color_f44a4a));
+                            bindingView.btnStart.setText("开始");
+                        }
+                    }
+                });
+    }
+
+    /**
+     * 获取系统当前时间
+     *
+     * @return
+     */
+    private String getSystemTime() {
+        SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        Date curDate = new Date(System.currentTimeMillis());
+        String str = format.format(curDate);
+        return str;
     }
 
     @Override
@@ -212,100 +373,4 @@ public class MainActivity extends AppCompatActivity implements LocationSource, A
         //在activity执行onSaveInstanceState时执行mMapView.onSaveInstanceState (outState)，保存地图当前的状态
         bindingView.mapview.onSaveInstanceState(outState);
     }
-
-    @Override
-    public void onClick(View v) {
-        switch (v.getId()) {
-            case R.id.text_ip://编辑
-                bindingView.textIp.setVisibility(View.GONE);
-                bindingView.edittextIp.setVisibility(View.VISIBLE);
-                break;
-            case R.id.text_test://连接测试
-                bindingView.textIp.setText(bindingView.edittextIp.getText());
-                bindingView.textIp.setVisibility(View.VISIBLE);
-                bindingView.edittextIp.setVisibility(View.GONE);
-                if (bindingView.textIp.getText().length() <= 0) {
-                    ToastUtil.show("请输入服务器地址");
-                } else {
-                    state = state1;
-                    getNetData(state);
-                }
-                break;
-            case R.id.btn_start://开始
-                if (bindingView.textSuccess.getText().equals("已连接")) {
-                    state = state3;
-                    getNetData(state);
-                    bindingView.btnStart.setText("正在运行中...");
-                }
-                if (bindingView.textSuccess.getText().equals("未连接")) {
-                    ToastUtil.show("服务器未连接，无法开始");
-                }
-                break;
-            case R.id.btn_end://结束
-                state = state2;
-                getNetData(state);
-                bindingView.btnStart.setText("开始");
-                break;
-        }
-    }
-
-    private void getNetData(final String state) {
-        Log.i("gis_ip", "http://" + bindingView.textIp.getText() + "/");
-        Log.i("gis_time", getSystemTime());
-        ApiHelper.getInstance("http://" + bindingView.textIp.getText() + "/").getPosition(
-                state, longitude + "", latitude + "", getSystemTime(), MacUtils.getMac())
-                .subscribe(new Subscriber<PositionBean>() {
-                    @Override
-                    public void onStart() {
-                        super.onStart();
-                        mProgressDialog.show();
-                    }
-
-                    @Override
-                    public void onNext(PositionBean bean) {
-                        Log.i("gis", bean.getDes());
-                        Log.i("gis", bean.getCode());
-                        if (bean.getCode().equals("1")) {//连接成功
-                            bindingView.textSuccess.setText("已连接");
-                            bindingView.textSuccess.setTextColor(getResources().getColor(R.color.green));
-                        } else {
-                            bindingView.textSuccess.setText("连接失败");
-                            bindingView.textSuccess.setTextColor(getResources().getColor(R.color.color_f44a4a));
-                        }
-                    }
-
-                    @Override
-                    public void onCompleted() {
-                        mProgressDialog.dismiss();
-                        mProgressDialog.cancel();
-                    }
-
-                    @Override
-                    public void onError(Throwable e) {
-                        Log.i("gis_onError", e.toString());
-                        if (state.equals(state1)) {//连接测试阶段异常
-                            bindingView.textSuccess.setText("未连接");
-                            bindingView.textSuccess.setTextColor(getResources().getColor(R.color.color_f44a4a));
-                        }
-                        if (state.equals(state3)) {//运行中出现异常
-                            bindingView.textSuccess.setText("已断开");
-                            bindingView.textSuccess.setTextColor(getResources().getColor(R.color.color_f44a4a));
-                            bindingView.btnStart.setText("开始");
-                        }
-                    }
-                });
-    }
-
-    /**
-     * 获取系统当前时间
-     *
-     * @return
-     */
-    private String getSystemTime() {
-        SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-        Date curDate = new Date(System.currentTimeMillis());
-        String str = format.format(curDate);
-        return str;
-    }
-
 }
