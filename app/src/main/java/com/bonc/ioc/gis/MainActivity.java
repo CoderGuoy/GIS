@@ -3,10 +3,13 @@ package com.bonc.ioc.gis;
 import android.Manifest;
 import android.app.ProgressDialog;
 import android.databinding.DataBindingUtil;
+import android.location.Location;
+import android.location.LocationManager;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
+import android.widget.Toast;
 
 import com.amap.api.location.AMapLocation;
 import com.amap.api.location.AMapLocationClient;
@@ -19,6 +22,7 @@ import com.amap.api.maps.UiSettings;
 import com.bonc.ioc.gis.databinding.ActivityMainBinding;
 import com.bonc.ioc.gis.net.ApiHelper;
 import com.bonc.ioc.gis.net.PositionBean;
+import com.bonc.ioc.gis.utils.LocationUtils;
 import com.bonc.ioc.gis.utils.NetUtils;
 import com.bonc.ioc.gis.utils.SPUtils;
 import com.bonc.ioc.gis.utils.ToastUtil;
@@ -47,6 +51,8 @@ public class MainActivity extends AppCompatActivity implements LocationSource, A
     private String state4 = "4";//上报异常
     private String state = "0";//当前状态
     private ProgressDialog mProgressDialog;
+    private double gpsLatitude;
+    private double gpsLongitude;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -148,13 +154,14 @@ public class MainActivity extends AppCompatActivity implements LocationSource, A
         if (mListener != null && amapLocation != null) {
             if (amapLocation != null && amapLocation.getErrorCode() == 0) {
                 mListener.onLocationChanged(amapLocation);// 显示系统小蓝点
+                getGPSLocation();
                 //当前位置的经度
                 latitude = amapLocation.getLatitude();
                 //当前位置的纬度
                 longitude = amapLocation.getLongitude();
-                bindingView.textLatitude.setText(latitude + "");
-                bindingView.textLontitude.setText(longitude + "");
-                Log.i("gis", "lat" + latitude + ";" + "log" + longitude);
+                bindingView.textLatitude.setText("GD:" + latitude + "|GPS:" + gpsLatitude);
+                bindingView.textLontitude.setText("GD:" + longitude + "|GPS:" + gpsLongitude);
+                Log.i("gis==", "lat" + latitude + ";" + "log" + longitude);
                 //获取定位时间
                 bindingView.textTime.setText(getSystemTime());
                 if (!NetUtils.isNetworkConnected(MainActivity.this)) {//没有网络
@@ -172,6 +179,32 @@ public class MainActivity extends AppCompatActivity implements LocationSource, A
                         + amapLocation.getErrorCode() + ", errInfo:"
                         + amapLocation.getErrorInfo());
             }
+        }
+    }
+
+    /**
+     * 通过GPS获取定位信息
+     */
+    public void getGPSLocation() {
+        Location gps = LocationUtils.getGPSLocation(this);
+        if (gps == null) {
+            //设置定位监听，因为GPS定位，第一次进来可能获取不到，通过设置监听，可以在有效的时间范围内获取定位信息
+            LocationUtils.addLocationListener(this, LocationManager.GPS_PROVIDER, new LocationUtils.ILocationListener() {
+                @Override
+                public void onSuccessLocation(Location location) {
+                    if (location != null) {
+                        gpsLatitude = location.getLatitude();
+                        gpsLongitude = location.getLongitude();
+//                        Toast.makeText(MainActivity.this, "gps onSuccessLocation location:  lat==" + location.getLatitude() + "     lng==" + location.getLongitude(), Toast.LENGTH_SHORT).show();
+                    } else {
+                        Toast.makeText(MainActivity.this, "gps location is null", Toast.LENGTH_SHORT).show();
+                    }
+                }
+            });
+        } else {
+            gpsLatitude = gps.getLatitude();
+            gpsLongitude = gps.getLongitude();
+//            Toast.makeText(this, "gps location: lat==" + gps.getLatitude() + "  lng==" + gps.getLongitude(), Toast.LENGTH_SHORT).show();
         }
     }
 
@@ -250,7 +283,7 @@ public class MainActivity extends AppCompatActivity implements LocationSource, A
      */
     private void getNetTestData(final String state) {
         ApiHelper.getInstance("http://" + bindingView.textIp.getText() + "/").getPosition(
-                state, longitude + "", latitude + "", getSystemTime(), bindingView.textCode.getText().toString())
+                state, gpsLongitude + "", gpsLatitude + "", getSystemTime(), bindingView.textCode.getText().toString())
                 .subscribe(new Subscriber<PositionBean>() {
                     @Override
                     public void onStart() {
@@ -296,7 +329,7 @@ public class MainActivity extends AppCompatActivity implements LocationSource, A
      */
     private void getNetData(final String state) {
         ApiHelper.getInstance("http://" + bindingView.textIp.getText() + "/").getPosition(
-                state, longitude + "", latitude + "", getSystemTime(), bindingView.textCode.getText().toString())
+                state, gpsLongitude + "", gpsLatitude + "", getSystemTime(), bindingView.textCode.getText().toString())
                 .subscribe(new Subscriber<PositionBean>() {
                     @Override
                     public void onNext(PositionBean bean) {
