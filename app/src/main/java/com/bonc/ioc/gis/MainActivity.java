@@ -161,7 +161,8 @@ public class MainActivity extends AppCompatActivity implements LocationSource, A
                 longitude = amapLocation.getLongitude();
                 bindingView.textLatitude.setText("GD:" + latitude + "|GPS:" + gpsLatitude);
                 bindingView.textLontitude.setText("GD:" + longitude + "|GPS:" + gpsLongitude);
-                Log.i("gis==", "lat" + latitude + ";" + "log" + longitude);
+                Log.i("gis==", "GD_lat" + latitude + ";" + "GD_lng" + longitude
+                        + "GPS_lat" + gpsLatitude + "GPS_lng" + gpsLongitude);
                 //获取定位时间
                 bindingView.textTime.setText(getSystemTime());
                 if (!NetUtils.isNetworkConnected(MainActivity.this)) {//没有网络
@@ -195,7 +196,7 @@ public class MainActivity extends AppCompatActivity implements LocationSource, A
                     if (location != null) {
                         gpsLatitude = location.getLatitude();
                         gpsLongitude = location.getLongitude();
-//                        Toast.makeText(MainActivity.this, "gps onSuccessLocation location:  lat==" + location.getLatitude() + "     lng==" + location.getLongitude(), Toast.LENGTH_SHORT).show();
+                        Toast.makeText(MainActivity.this, "gps onSuccessLocation location:  lat==" + location.getLatitude() + "     lng==" + location.getLongitude(), Toast.LENGTH_SHORT).show();
                     } else {
                         Toast.makeText(MainActivity.this, "gps location is null", Toast.LENGTH_SHORT).show();
                     }
@@ -204,7 +205,7 @@ public class MainActivity extends AppCompatActivity implements LocationSource, A
         } else {
             gpsLatitude = gps.getLatitude();
             gpsLongitude = gps.getLongitude();
-//            Toast.makeText(this, "gps location: lat==" + gps.getLatitude() + "  lng==" + gps.getLongitude(), Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "gps location: lat==" + gps.getLatitude() + "  lng==" + gps.getLongitude(), Toast.LENGTH_SHORT).show();
         }
     }
 
