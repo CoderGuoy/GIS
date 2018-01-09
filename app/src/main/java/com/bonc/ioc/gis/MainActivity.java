@@ -51,8 +51,8 @@ public class MainActivity extends AppCompatActivity implements LocationSource, A
     private String state4 = "4";//上报异常
     private String state = "0";//当前状态
     private ProgressDialog mProgressDialog;
-    private double gpsLatitude;
-    private double gpsLongitude;
+    private double gpsLatitude = 0.0;
+    private double gpsLongitude = 0.0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -159,10 +159,9 @@ public class MainActivity extends AppCompatActivity implements LocationSource, A
                 latitude = amapLocation.getLatitude();
                 //当前位置的纬度
                 longitude = amapLocation.getLongitude();
-                bindingView.textLatitude.setText("GD:" + latitude + "|GPS:" + gpsLatitude);
-                bindingView.textLontitude.setText("GD:" + longitude + "|GPS:" + gpsLongitude);
-                Log.i("gis==", "GD_lat" + latitude + ";" + "GD_lng" + longitude
-                        + "GPS_lat" + gpsLatitude + "GPS_lng" + gpsLongitude);
+                bindingView.textLatitude.setText("GPS:" + gpsLatitude);
+                bindingView.textLontitude.setText("GPS:" + gpsLongitude);
+                Log.i("gis==", "lat" + gpsLatitude + "lng" + gpsLongitude);
                 //获取定位时间
                 bindingView.textTime.setText(getSystemTime());
                 if (!NetUtils.isNetworkConnected(MainActivity.this)) {//没有网络
@@ -183,9 +182,7 @@ public class MainActivity extends AppCompatActivity implements LocationSource, A
         }
     }
 
-    /**
-     * 通过GPS获取定位信息
-     */
+    // TODO: 2018/1/9 通过GPS获取定位信息
     public void getGPSLocation() {
         Location gps = LocationUtils.getGPSLocation(this);
         if (gps == null) {
@@ -196,7 +193,7 @@ public class MainActivity extends AppCompatActivity implements LocationSource, A
                     if (location != null) {
                         gpsLatitude = location.getLatitude();
                         gpsLongitude = location.getLongitude();
-                        Toast.makeText(MainActivity.this, "gps onSuccessLocation location:  lat==" + location.getLatitude() + "     lng==" + location.getLongitude(), Toast.LENGTH_SHORT).show();
+//                        Toast.makeText(MainActivity.this, "gps onSuccessLocation location:  lat==" + location.getLatitude() + "     lng==" + location.getLongitude(), Toast.LENGTH_SHORT).show();
                     } else {
                         Toast.makeText(MainActivity.this, "gps location is null", Toast.LENGTH_SHORT).show();
                     }
@@ -205,7 +202,7 @@ public class MainActivity extends AppCompatActivity implements LocationSource, A
         } else {
             gpsLatitude = gps.getLatitude();
             gpsLongitude = gps.getLongitude();
-            Toast.makeText(this, "gps location: lat==" + gps.getLatitude() + "  lng==" + gps.getLongitude(), Toast.LENGTH_SHORT).show();
+//            Toast.makeText(this, "gps location: lat==" + gps.getLatitude() + "  lng==" + gps.getLongitude(), Toast.LENGTH_SHORT).show();
         }
     }
 
@@ -330,7 +327,10 @@ public class MainActivity extends AppCompatActivity implements LocationSource, A
      */
     private void getNetData(final String state) {
         ApiHelper.getInstance("http://" + bindingView.textIp.getText() + "/").getPosition(
-                state, gpsLongitude + "", gpsLatitude + "", getSystemTime(), bindingView.textCode.getText().toString())
+                state,
+                gpsLongitude + "", gpsLatitude + "",
+                getSystemTime(),
+                bindingView.textCode.getText().toString())
                 .subscribe(new Subscriber<PositionBean>() {
                     @Override
                     public void onNext(PositionBean bean) {
