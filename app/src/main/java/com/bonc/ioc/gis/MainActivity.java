@@ -75,14 +75,14 @@ public class MainActivity extends AppCompatActivity implements LocationSource, A
         rxPermissions = new RxPermissions(this);
         mProgressDialog = new ProgressDialog(MainActivity.this);
         mProgressDialog.setMessage("别着急，骚年，正在连接...");
-        bindingView.textIp.setText(SPUtils.getString("ip", ""));
-        bindingView.textCode.setText(SPUtils.getString("code", ""));
+        bindingView.textIp.setText(getString(R.string.app_ip));
+        bindingView.textCode.setText(SPUtils.getString("code", "点击输入工号"));
     }
 
     private void initListener() {
         bindingView.btnStart.setOnClickListener(this);
         bindingView.btnEnd.setOnClickListener(this);
-        bindingView.textIp.setOnClickListener(this);
+//        bindingView.textIp.setOnClickListener(this);
         bindingView.textCode.setOnClickListener(this);
         bindingView.textTest.setOnClickListener(this);
         bindingView.btnIpOk.setOnClickListener(this);
@@ -222,10 +222,10 @@ public class MainActivity extends AppCompatActivity implements LocationSource, A
     @Override
     public void onClick(View v) {
         switch (v.getId()) {
-            case R.id.text_ip://服务器IP
-                bindingView.textIp.setVisibility(View.GONE);
-                bindingView.layoutIp.setVisibility(View.VISIBLE);
-                break;
+//            case R.id.text_ip://服务器IP
+//                bindingView.textIp.setVisibility(View.GONE);
+//                bindingView.layoutIp.setVisibility(View.VISIBLE);
+//                break;
             case R.id.text_code://定位编码
                 bindingView.textCode.setVisibility(View.GONE);
                 bindingView.layoutCode.setVisibility(View.VISIBLE);
@@ -235,7 +235,6 @@ public class MainActivity extends AppCompatActivity implements LocationSource, A
                     bindingView.textIp.setVisibility(View.VISIBLE);
                     bindingView.textIp.setText(bindingView.edittextIp.getText().toString());
                     SPUtils.putString("ip", bindingView.edittextIp.getText().toString());
-                    bindingView.layoutIp.setVisibility(View.GONE);
                 } else {
                     ToastUtil.show("请输入服务器IP");
                 }
@@ -251,9 +250,14 @@ public class MainActivity extends AppCompatActivity implements LocationSource, A
                 }
                 break;
             case R.id.text_test://连接测试
-                if (bindingView.textIp.getText() != null && bindingView.textCode.getText() != null) {
-                    state = state1;
-                    getNetTestData(state);
+                if (bindingView.textIp.getText() != null && bindingView.textIp.getText() != "" &&
+                        bindingView.textCode.getText() != null && bindingView.textCode.getText() != "") {
+                    if (bindingView.textCode.getText() == "点击输入工号") {
+                        ToastUtil.show("请输入工号");
+                    } else {
+                        state = state1;
+                        getNetTestData(state);
+                    }
                 }
                 break;
             case R.id.btn_start://开始
@@ -280,8 +284,11 @@ public class MainActivity extends AppCompatActivity implements LocationSource, A
      * 连接测试
      */
     private void getNetTestData(final String state) {
-        ApiHelper.getInstance("http://" + bindingView.textIp.getText() + "/").getPosition(
-                state, gpsLongitude + "", gpsLatitude + "", getSystemTime(), bindingView.textCode.getText().toString())
+        ApiHelper.getInstance(Constants.URL).getPosition(
+                state,
+                gpsLongitude + "", gpsLatitude + "",
+                getSystemTime(),
+                bindingView.textCode.getText().toString())
                 .subscribe(new Subscriber<PositionBean>() {
                     @Override
                     public void onStart() {
@@ -326,7 +333,7 @@ public class MainActivity extends AppCompatActivity implements LocationSource, A
      * 上传数据
      */
     private void getNetData(final String state) {
-        ApiHelper.getInstance("http://" + bindingView.textIp.getText() + "/").getPosition(
+        ApiHelper.getInstance(Constants.URL).getPosition(
                 state,
                 gpsLongitude + "", gpsLatitude + "",
                 getSystemTime(),

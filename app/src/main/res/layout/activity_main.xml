@@ -107,7 +107,7 @@
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:background="@null"
-                            android:hint="输入什么看你心情"
+                            android:hint="输入工号"
                             android:singleLine="true"/>
 
                         <Button

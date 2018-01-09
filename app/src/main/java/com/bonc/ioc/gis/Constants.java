@@ -12,6 +12,7 @@ import java.io.File;
  */
 public class Constants {
     //================= URL =====================
+    public static final String URL="http://ioc.bonc.com.cn:8081/";
     //================= PATH ====================
 
     public static final String PATH_DATA = App.getInstance().getCacheDir().getAbsolutePath() + File.separator + "data";

@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">智巡</string>
+    <string name="app_ip">ioc.bonc.com.cn:8081</string>
 </resources>
