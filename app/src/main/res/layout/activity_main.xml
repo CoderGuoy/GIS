@@ -27,7 +27,7 @@
                 tools:context="com.bonc.ioc.gis.MainActivity">
 
                 <!--Mac地址-->
-                <LinearLayout
+                <!--<LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="horizontal">
@@ -44,7 +44,6 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:background="?android:attr/selectableItemBackground"
-                        android:text="点击编辑"
                         android:textColor="@color/color_f44a4a"/>
 
                     <RelativeLayout
@@ -74,56 +73,9 @@
                             android:textColor="@color/colorWhite"/>
                     </RelativeLayout>
 
-                </LinearLayout>
+                </LinearLayout>-->
 
-                <!--定位编码-->
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal">
-
-                    <TextView
-                        style="@style/Home_Text"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="定位编码:"/>
-
-                    <TextView
-                        android:id="@+id/text_code"
-                        style="@style/Home_Text_Content"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:text="点击输入"/>
-
-                    <RelativeLayout
-                        android:id="@+id/layout_code"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:visibility="gone">
-
-                        <EditText
-                            android:id="@+id/edittext_code"
-                            style="@style/Home_Text_Content"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:background="@null"
-                            android:hint="输入工号"
-                            android:singleLine="true"/>
-
-                        <Button
-                            android:id="@+id/btn_code_ok"
-                            android:layout_width="wrap_content"
-                            android:layout_height="30dp"
-                            android:layout_alignParentRight="true"
-                            android:layout_centerVertical="true"
-                            android:layout_marginRight="5dp"
-                            android:background="@drawable/shape_btn_select"
-                            android:text="OK"
-                            android:textColor="@color/colorWhite"/>
-                    </RelativeLayout>
-                </LinearLayout>
-
-                <RelativeLayout
+               <!-- <RelativeLayout
                     android:id="@+id/layout_edit"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content">
@@ -150,7 +102,7 @@
                             android:layout_height="wrap_content"
                             android:text="未连接"/>
                     </LinearLayout>
-                </RelativeLayout>
+                </RelativeLayout>-->
                 <!--时间-->
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -205,6 +157,52 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"/>
                 </LinearLayout>
+                <!--定位编码-->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        style="@style/Home_Text"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="定位编码:"/>
+
+                    <TextView
+                        android:id="@+id/text_code"
+                        style="@style/Home_Text_Content"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="点击输入"/>
+
+                    <RelativeLayout
+                        android:id="@+id/layout_code"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:visibility="gone">
+
+                        <EditText
+                            android:id="@+id/edittext_code"
+                            style="@style/Home_Text_Content"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:background="@null"
+                            android:hint="输入工号"
+                            android:singleLine="true"/>
+
+                        <Button
+                            android:id="@+id/btn_code_ok"
+                            android:layout_width="wrap_content"
+                            android:layout_height="30dp"
+                            android:layout_alignParentRight="true"
+                            android:layout_centerVertical="true"
+                            android:layout_marginRight="5dp"
+                            android:background="@drawable/shape_btn_select"
+                            android:text="OK"
+                            android:textColor="@color/colorWhite"/>
+                    </RelativeLayout>
+                </LinearLayout>
                 <!--开始-->
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -223,7 +221,7 @@
                         android:text="开始"
                         android:textColor="@color/colorWhite"/>
 
-                    <Button
+                    <!--<Button
                         android:id="@+id/btn_end"
                         style="@style/Home_Text"
                         android:layout_width="0dp"
@@ -233,7 +231,7 @@
                         android:background="@drawable/shape_btn_normal"
                         android:gravity="center"
                         android:text="结束"
-                        android:textColor="@color/colorWhite"/>
+                        android:textColor="@color/colorWhite"/>-->
                 </LinearLayout>
             </LinearLayout>
         </android.support.v4.widget.NestedScrollView>

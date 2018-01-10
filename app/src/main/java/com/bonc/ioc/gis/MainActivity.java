@@ -43,8 +43,6 @@ public class MainActivity extends AppCompatActivity implements LocationSource, A
     private ActivityMainBinding bindingView;
     private AMap aMap;
     private UiSettings mUiSettings;
-    private Double latitude;
-    private Double longitude;
     private String state1 = "1";//开启巡航/定位
     private String state2 = "2";//停止巡航/定位
     private String state3 = "3";//正常行驶/巡航
@@ -53,6 +51,7 @@ public class MainActivity extends AppCompatActivity implements LocationSource, A
     private ProgressDialog mProgressDialog;
     private double gpsLatitude = 0.0;
     private double gpsLongitude = 0.0;
+    private boolean isStart = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -74,18 +73,13 @@ public class MainActivity extends AppCompatActivity implements LocationSource, A
         mUiSettings.setZoomPosition(AMapOptions.ZOOM_POSITION_RIGHT_CENTER);
         rxPermissions = new RxPermissions(this);
         mProgressDialog = new ProgressDialog(MainActivity.this);
-        mProgressDialog.setMessage("别着急，骚年，正在连接...");
-        bindingView.textIp.setText(getString(R.string.app_ip));
+        mProgressDialog.setMessage("别着急，正在连接...");
         bindingView.textCode.setText(SPUtils.getString("code", "点击输入工号"));
     }
 
     private void initListener() {
         bindingView.btnStart.setOnClickListener(this);
-        bindingView.btnEnd.setOnClickListener(this);
-//        bindingView.textIp.setOnClickListener(this);
         bindingView.textCode.setOnClickListener(this);
-        bindingView.textTest.setOnClickListener(this);
-        bindingView.btnIpOk.setOnClickListener(this);
         bindingView.btnCodeOk.setOnClickListener(this);
     }
 
@@ -94,6 +88,7 @@ public class MainActivity extends AppCompatActivity implements LocationSource, A
         super.onWindowFocusChanged(hasFocus);
         //获取权限
         initPermission();
+        getGPSLocation();
     }
 
     private void initPermission() {
@@ -154,25 +149,22 @@ public class MainActivity extends AppCompatActivity implements LocationSource, A
         if (mListener != null && amapLocation != null) {
             if (amapLocation != null && amapLocation.getErrorCode() == 0) {
                 mListener.onLocationChanged(amapLocation);// 显示系统小蓝点
+                //获取定位时间
+                bindingView.textTime.setText(getSystemTime());
                 getGPSLocation();
-                //当前位置的经度
-                latitude = amapLocation.getLatitude();
-                //当前位置的纬度
-                longitude = amapLocation.getLongitude();
                 bindingView.textLatitude.setText("GPS:" + gpsLatitude);
                 bindingView.textLontitude.setText("GPS:" + gpsLongitude);
                 Log.i("gis==", "lat" + gpsLatitude + "lng" + gpsLongitude);
-                //获取定位时间
-                bindingView.textTime.setText(getSystemTime());
-                if (!NetUtils.isNetworkConnected(MainActivity.this)) {//没有网络
-                    ToastUtil.show("骚年，没有网络，无法工作！");
-                    bindingView.textSuccess.setText("已断开");
-                    bindingView.textSuccess.setTextColor(getResources().getColor(R.color.color_f44a4a));
-                    bindingView.btnStart.setText("开始");
-                    state = state2;
-                }
-                if (state.equals(state3)) {
-                    getNetData(state);
+                if (isStart == true) {
+                    if (!NetUtils.isNetworkConnected(MainActivity.this)) {//没有网络
+                        ToastUtil.show("没有网络，无法工作！");
+                        bindingView.btnStart.setText("开始");
+                        state = state2;
+                        getNetData(state);
+                    } else {//断网回复后，继续上传数据
+                        state = state1;
+                        getNetData(state);
+                    }
                 }
             } else {
                 Log.e("AmapError", "location Error, ErrCode:"
@@ -184,7 +176,7 @@ public class MainActivity extends AppCompatActivity implements LocationSource, A
 
     // TODO: 2018/1/9 通过GPS获取定位信息
     public void getGPSLocation() {
-        Location gps = LocationUtils.getGPSLocation(this);
+        Location gps = LocationUtils.getBestLocation(this, null);
         if (gps == null) {
             //设置定位监听，因为GPS定位，第一次进来可能获取不到，通过设置监听，可以在有效的时间范围内获取定位信息
             LocationUtils.addLocationListener(this, LocationManager.GPS_PROVIDER, new LocationUtils.ILocationListener() {
@@ -222,22 +214,9 @@ public class MainActivity extends AppCompatActivity implements LocationSource, A
     @Override
     public void onClick(View v) {
         switch (v.getId()) {
-//            case R.id.text_ip://服务器IP
-//                bindingView.textIp.setVisibility(View.GONE);
-//                bindingView.layoutIp.setVisibility(View.VISIBLE);
-//                break;
             case R.id.text_code://定位编码
                 bindingView.textCode.setVisibility(View.GONE);
                 bindingView.layoutCode.setVisibility(View.VISIBLE);
-                break;
-            case R.id.btn_ip_ok://服务器IP确定
-                if (bindingView.edittextIp.getText().length() > 0) {
-                    bindingView.textIp.setVisibility(View.VISIBLE);
-                    bindingView.textIp.setText(bindingView.edittextIp.getText().toString());
-                    SPUtils.putString("ip", bindingView.edittextIp.getText().toString());
-                } else {
-                    ToastUtil.show("请输入服务器IP");
-                }
                 break;
             case R.id.btn_code_ok://定位编码确定
                 if (bindingView.edittextCode.getText().length() > 0) {
@@ -249,89 +228,21 @@ public class MainActivity extends AppCompatActivity implements LocationSource, A
                     ToastUtil.show("请输入定位编码");
                 }
                 break;
-            case R.id.text_test://连接测试
-                if (bindingView.textIp.getText() != null && bindingView.textIp.getText() != "" &&
-                        bindingView.textCode.getText() != null && bindingView.textCode.getText() != "") {
+            case R.id.btn_start://开始
+                if (bindingView.textCode.getText() != null && bindingView.textCode.getText() != "") {
                     if (bindingView.textCode.getText() == "点击输入工号") {
                         ToastUtil.show("请输入工号");
                     } else {
+                        isStart = true;
                         state = state1;
-                        getNetTestData(state);
+                        getNetData(state);
                     }
-                }
-                break;
-            case R.id.btn_start://开始
-                if (bindingView.textSuccess.getText().equals("已连接")) {
-                    state = state3;
-                }
-                if (bindingView.textSuccess.getText().equals("未连接")) {
-                    ToastUtil.show("服务器未连接，无法开始");
-                }
-                break;
-            case R.id.btn_end://结束
-                if (bindingView.textSuccess.getText().equals("已连接")) {
-                    state = state2;
-                    getNetTestData(state);
-                    bindingView.btnStart.setText("开始");
-                } else {
-                    ToastUtil.show("服务器未连接!");
                 }
                 break;
         }
     }
 
-    /**
-     * 连接测试
-     */
-    private void getNetTestData(final String state) {
-        ApiHelper.getInstance(Constants.URL).getPosition(
-                state,
-                gpsLongitude + "", gpsLatitude + "",
-                getSystemTime(),
-                bindingView.textCode.getText().toString())
-                .subscribe(new Subscriber<PositionBean>() {
-                    @Override
-                    public void onStart() {
-                        super.onStart();
-                        mProgressDialog.show();
-                    }
-
-                    @Override
-                    public void onNext(PositionBean bean) {
-                        if (bean.getCode().equals("1")) {//连接成功
-                            bindingView.textSuccess.setText("已连接");
-                            bindingView.textSuccess.setTextColor(getResources().getColor(R.color.green));
-                        } else {
-                            bindingView.textSuccess.setText("连接失败");
-                            bindingView.textSuccess.setTextColor(getResources().getColor(R.color.color_f44a4a));
-                        }
-                    }
-
-                    @Override
-                    public void onCompleted() {
-                        mProgressDialog.dismiss();
-                        mProgressDialog.cancel();
-                    }
-
-                    @Override
-                    public void onError(Throwable e) {
-                        Log.i("gis_onError", e.toString());
-                        if (state.equals(state1)) {//连接测试阶段异常
-                            bindingView.textSuccess.setText("未连接");
-                            bindingView.textSuccess.setTextColor(getResources().getColor(R.color.color_f44a4a));
-                        }
-                        if (state.equals(state3)) {//运行中出现异常
-                            bindingView.textSuccess.setText("已断开");
-                            bindingView.textSuccess.setTextColor(getResources().getColor(R.color.color_f44a4a));
-                            bindingView.btnStart.setText("开始");
-                        }
-                    }
-                });
-    }
-
-    /**
-     * 上传数据
-     */
+    // TODO: 2018/1/10 上传数据
     private void getNetData(final String state) {
         ApiHelper.getInstance(Constants.URL).getPosition(
                 state,
@@ -341,32 +252,25 @@ public class MainActivity extends AppCompatActivity implements LocationSource, A
                 .subscribe(new Subscriber<PositionBean>() {
                     @Override
                     public void onNext(PositionBean bean) {
-                        if (bean.getCode().equals("1")) {//连接成功
-                            bindingView.textSuccess.setText("已连接");
-                            bindingView.textSuccess.setTextColor(getResources().getColor(R.color.green));
-                        } else {
-                            bindingView.textSuccess.setText("连接失败");
-                            bindingView.textSuccess.setTextColor(getResources().getColor(R.color.color_f44a4a));
-                        }
                     }
 
                     @Override
                     public void onCompleted() {
-                        bindingView.btnStart.setText("正在运行中...");
+                        switch (state) {
+                            case "1":
+                                bindingView.btnStart.setText("正在运行中...");
+                                break;
+                            case "2":
+                                bindingView.btnStart.setText("开始");
+                                break;
+                        }
                     }
 
                     @Override
                     public void onError(Throwable e) {
+                        ToastUtil.show(e.toString());
                         Log.i("gis_onError", e.toString());
-                        if (state.equals(state1)) {//连接测试阶段异常
-                            bindingView.textSuccess.setText("未连接");
-                            bindingView.textSuccess.setTextColor(getResources().getColor(R.color.color_f44a4a));
-                        }
-                        if (state.equals(state3)) {//运行中出现异常
-                            bindingView.textSuccess.setText("已断开");
-                            bindingView.textSuccess.setTextColor(getResources().getColor(R.color.color_f44a4a));
-                            bindingView.btnStart.setText("开始");
-                        }
+                        bindingView.btnStart.setText("开始");
                     }
                 });
     }
