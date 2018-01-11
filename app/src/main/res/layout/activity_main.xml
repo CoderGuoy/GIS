@@ -233,6 +233,13 @@
                         android:text="结束"
                         android:textColor="@color/colorWhite"/>-->
                 </LinearLayout>
+                <TextView
+                    style="@style/Home_Text"
+                    android:textColor="@color/red"
+                    android:textSize="13sp"
+                    android:text="提示:GPS启动需要一些时间，请耐心等待"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"/>
             </LinearLayout>
         </android.support.v4.widget.NestedScrollView>
 

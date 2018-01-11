@@ -1,10 +1,8 @@
 package com.bonc.ioc.gis;
 
 import android.Manifest;
-import android.app.ProgressDialog;
 import android.databinding.DataBindingUtil;
 import android.location.Location;
-import android.location.LocationManager;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
@@ -20,12 +18,13 @@ import com.amap.api.maps.AMapOptions;
 import com.amap.api.maps.LocationSource;
 import com.amap.api.maps.UiSettings;
 import com.bonc.ioc.gis.databinding.ActivityMainBinding;
+import com.bonc.ioc.gis.gps.GPSLocationListener;
+import com.bonc.ioc.gis.gps.GPSLocationManager;
+import com.bonc.ioc.gis.gps.GPSProviderStatus;
 import com.bonc.ioc.gis.net.ApiHelper;
 import com.bonc.ioc.gis.net.PositionBean;
-import com.bonc.ioc.gis.utils.LocationUtils;
 import com.bonc.ioc.gis.utils.NetUtils;
 import com.bonc.ioc.gis.utils.SPUtils;
-import com.bonc.ioc.gis.utils.ToastUtil;
 import com.tbruyelle.rxpermissions.RxPermissions;
 
 import java.text.SimpleDateFormat;
@@ -48,10 +47,10 @@ public class MainActivity extends AppCompatActivity implements LocationSource, A
     private String state3 = "3";//正常行驶/巡航
     private String state4 = "4";//上报异常
     private String state = "0";//当前状态
-    private ProgressDialog mProgressDialog;
     private double gpsLatitude = 0.0;
     private double gpsLongitude = 0.0;
     private boolean isStart = false;
+    private GPSLocationManager mGPSLocationManager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -64,6 +63,7 @@ public class MainActivity extends AppCompatActivity implements LocationSource, A
     }
 
     private void initData() {
+        mGPSLocationManager = GPSLocationManager.getInstances(MainActivity.this);
         if (aMap == null) {
             aMap = bindingView.mapview.getMap();
         }
@@ -72,8 +72,6 @@ public class MainActivity extends AppCompatActivity implements LocationSource, A
         mUiSettings = aMap.getUiSettings();
         mUiSettings.setZoomPosition(AMapOptions.ZOOM_POSITION_RIGHT_CENTER);
         rxPermissions = new RxPermissions(this);
-        mProgressDialog = new ProgressDialog(MainActivity.this);
-        mProgressDialog.setMessage("别着急，正在连接...");
         bindingView.textCode.setText(SPUtils.getString("code", "点击输入工号"));
     }
 
@@ -88,7 +86,6 @@ public class MainActivity extends AppCompatActivity implements LocationSource, A
         super.onWindowFocusChanged(hasFocus);
         //获取权限
         initPermission();
-        getGPSLocation();
     }
 
     private void initPermission() {
@@ -149,21 +146,21 @@ public class MainActivity extends AppCompatActivity implements LocationSource, A
         if (mListener != null && amapLocation != null) {
             if (amapLocation != null && amapLocation.getErrorCode() == 0) {
                 mListener.onLocationChanged(amapLocation);// 显示系统小蓝点
+                mGPSLocationManager.start(new MyListener());
                 //获取定位时间
                 bindingView.textTime.setText(getSystemTime());
-                getGPSLocation();
                 bindingView.textLatitude.setText("GPS:" + gpsLatitude);
                 bindingView.textLontitude.setText("GPS:" + gpsLongitude);
                 Log.i("gis==", "lat" + gpsLatitude + "lng" + gpsLongitude);
                 if (isStart == true) {
                     if (!NetUtils.isNetworkConnected(MainActivity.this)) {//没有网络
-                        ToastUtil.show("没有网络，无法工作！");
+                        Toast.makeText(MainActivity.this, "没有网络，无法工作！", Toast.LENGTH_SHORT).show();
                         bindingView.btnStart.setText("开始");
                         state = state2;
-                        getNetData(state);
+                        getNetData(state,gpsLongitude,gpsLatitude);
                     } else {//断网回复后，继续上传数据
                         state = state1;
-                        getNetData(state);
+                        getNetData(state,gpsLongitude,gpsLatitude);
                     }
                 }
             } else {
@@ -175,26 +172,43 @@ public class MainActivity extends AppCompatActivity implements LocationSource, A
     }
 
     // TODO: 2018/1/9 通过GPS获取定位信息
-    public void getGPSLocation() {
-        Location gps = LocationUtils.getBestLocation(this, null);
-        if (gps == null) {
-            //设置定位监听，因为GPS定位，第一次进来可能获取不到，通过设置监听，可以在有效的时间范围内获取定位信息
-            LocationUtils.addLocationListener(this, LocationManager.GPS_PROVIDER, new LocationUtils.ILocationListener() {
-                @Override
-                public void onSuccessLocation(Location location) {
-                    if (location != null) {
-                        gpsLatitude = location.getLatitude();
-                        gpsLongitude = location.getLongitude();
-//                        Toast.makeText(MainActivity.this, "gps onSuccessLocation location:  lat==" + location.getLatitude() + "     lng==" + location.getLongitude(), Toast.LENGTH_SHORT).show();
-                    } else {
-                        Toast.makeText(MainActivity.this, "gps location is null", Toast.LENGTH_SHORT).show();
-                    }
-                }
-            });
-        } else {
-            gpsLatitude = gps.getLatitude();
-            gpsLongitude = gps.getLongitude();
-//            Toast.makeText(this, "gps location: lat==" + gps.getLatitude() + "  lng==" + gps.getLongitude(), Toast.LENGTH_SHORT).show();
+    class MyListener implements GPSLocationListener {
+
+        @Override
+        public void UpdateLocation(Location location) {
+            if (location != null) {
+//                text_gps_3.setText("经度：" + location.getLongitude() + "\n纬度：" + location.getLatitude());
+                gpsLatitude = location.getLatitude();
+                gpsLongitude = location.getLongitude();
+            }
+        }
+
+        @Override
+        public void UpdateStatus(String provider, int status, Bundle extras) {
+            if ("gps" == provider) {
+                Toast.makeText(MainActivity.this, "定位类型：" + provider, Toast.LENGTH_SHORT).show();
+            }
+        }
+
+        @Override
+        public void UpdateGPSProviderStatus(int gpsStatus) {
+            switch (gpsStatus) {
+                case GPSProviderStatus.GPS_ENABLED:
+                    Toast.makeText(MainActivity.this, "GPS开启", Toast.LENGTH_SHORT).show();
+                    break;
+                case GPSProviderStatus.GPS_DISABLED:
+                    Toast.makeText(MainActivity.this, "GPS关闭", Toast.LENGTH_SHORT).show();
+                    break;
+                case GPSProviderStatus.GPS_OUT_OF_SERVICE:
+                    Toast.makeText(MainActivity.this, "GPS不可用", Toast.LENGTH_SHORT).show();
+                    break;
+                case GPSProviderStatus.GPS_TEMPORARILY_UNAVAILABLE:
+                    Toast.makeText(MainActivity.this, "GPS暂时不可用", Toast.LENGTH_SHORT).show();
+                    break;
+                case GPSProviderStatus.GPS_AVAILABLE:
+                    Toast.makeText(MainActivity.this, "GPS可用啦", Toast.LENGTH_SHORT).show();
+                    break;
+            }
         }
     }
 
@@ -225,17 +239,17 @@ public class MainActivity extends AppCompatActivity implements LocationSource, A
                     SPUtils.putString("code", bindingView.edittextCode.getText().toString());
                     bindingView.layoutCode.setVisibility(View.GONE);
                 } else {
-                    ToastUtil.show("请输入定位编码");
+                    Toast.makeText(MainActivity.this, "请输入定位编码", Toast.LENGTH_SHORT).show();
                 }
                 break;
             case R.id.btn_start://开始
                 if (bindingView.textCode.getText() != null && bindingView.textCode.getText() != "") {
                     if (bindingView.textCode.getText() == "点击输入工号") {
-                        ToastUtil.show("请输入工号");
+                    Toast.makeText(MainActivity.this, "请输入工号", Toast.LENGTH_SHORT).show();
                     } else {
                         isStart = true;
                         state = state1;
-                        getNetData(state);
+                        getNetData(state,gpsLongitude,gpsLatitude);
                     }
                 }
                 break;
@@ -243,7 +257,7 @@ public class MainActivity extends AppCompatActivity implements LocationSource, A
     }
 
     // TODO: 2018/1/10 上传数据
-    private void getNetData(final String state) {
+    private void getNetData(final String state,final double gpsLongitude,final double gpsLatitude) {
         ApiHelper.getInstance(Constants.URL).getPosition(
                 state,
                 gpsLongitude + "", gpsLatitude + "",
@@ -268,7 +282,6 @@ public class MainActivity extends AppCompatActivity implements LocationSource, A
 
                     @Override
                     public void onError(Throwable e) {
-                        ToastUtil.show(e.toString());
                         Log.i("gis_onError", e.toString());
                         bindingView.btnStart.setText("开始");
                     }
@@ -295,7 +308,6 @@ public class MainActivity extends AppCompatActivity implements LocationSource, A
         if (null != mlocationClient) {
             mlocationClient.onDestroy();
         }
-        mProgressDialog = null;
     }
 
     @Override
